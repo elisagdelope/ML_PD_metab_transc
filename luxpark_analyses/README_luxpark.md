@@ -35,7 +35,7 @@ Calculates shapley values from a given final model and its training set.
 
 ### ML modelling with LASSO feature selection
 
-Please, install the environment package *digipd_analysis* to run these scripts.
+Please, install the environment package *digipd_ml* with the class **NestedCV()** to run these scripts.
 
 ##### PD_control_train.py, PD_control_train_PW.py
 Performs nested crossvalidation for feature selection (through DA) + binary ML classifiers on metabolomics static data (V0). Input taken from *lx_data4ML_class.R*, *lx_data4ML_class_denovo.R* outputs (which include the unsupervised feature selection filters).

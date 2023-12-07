@@ -30,7 +30,7 @@ Performs nested crossvalidation in a Random Forest model for binary classificati
 
 ### ML modelling with LASSO feature selection at baseline and using temporal features
 
-Please, install the environment package *digipd_analysis* to run these scripts.
+Please, install the environment package *digipd_ml* with the class **NestedCV()** to run these scripts.
 
 ##### PD_control_train.py, PD_control_train_PW.py
 Performs nested crossvalidation for feature selection (through DA) + binary ML classifiers on transcriptomics static data (BL). Input taken from *ppmi_data4ML_class.R* outputs (which include the unsupervised feature selection filters).
