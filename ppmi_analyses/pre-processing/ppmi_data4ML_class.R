@@ -60,11 +60,11 @@ for (e_level in c("GENE", "GOBP", "GOCC", "CORUM")) {
   if ((e_level == "GENE") & (norm_counts == "NO")) { 
     EXPRS.FILE <- file.path(OUT_DIR, "flt_star_BL.tsv")
     features_varname <- "GENEID"
-    process_data4ML(EXPRS.FILE, features_varname, OUT_DIR_DATA, OUT_DIR, target, myseed, export=TRUE)
+    process_data4ML(EXPRS.FILE, PHENO.FILE, features_varname, OUT_DIR_DATA, e_level, st, target, myseed, export=TRUE)
   } else if ((e_level == "GENE") & (norm_counts == "YES")) { # normalized counts at gene level
     EXPRS.FILE <- file.path(OUT_DIR, "flt_norm_star_BL.tsv")
     features_varname <- "GENEID"
-    process_data4ML(EXPRS.FILE, features_varname, OUT_DIR_DATA, OUT_DIR, target, myseed, export=TRUE)
+    process_data4ML(EXPRS.FILE, PHENO.FILE, features_varname, OUT_DIR_DATA, e_level, st, target, myseed, export=TRUE)
   } else { # aggregationss
     
     for (st in c("mean", "median", "sd", "pca", "pathifier")) {
@@ -74,7 +74,7 @@ for (e_level in c("GENE", "GOBP", "GOCC", "CORUM")) {
       if ((!e_level %in% c("GOBP", "GOCC", "CORUM")) | (!st %in% c("mean", "median", "sd", "pathifier", "pca")) | (!file.exists(EXPRS.FILE))) { 
         stop("Adequate arguments were not provided. Check R ppmi_rnaseq_binaryclass.R --help for the right usage.")
       }
-      process_data4ML(EXPRS.FILE, features_varname, OUT_DIR_DATA, OUT_DIR, target, myseed, export=TRUE)
+      process_data4ML(EXPRS.FILE, PHENO.FILE, features_varname, OUT_DIR_DATA, e_level, st, target, myseed, export=TRUE)
     }
   }
 }    
