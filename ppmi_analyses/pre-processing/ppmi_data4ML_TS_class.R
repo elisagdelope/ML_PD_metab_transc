@@ -63,12 +63,6 @@ source("func_data4ML_class.R")
 
 
 
-
-p <- add_argument(parser = p, arg = "feature", help = "temporal feature (sd, lm-time, lm-lag)", default = "lm-time", short = "f")
-temp_feature = tolower(argv$feature) # stat at aggregation level
-
-
-
 # Main -------------------------------------------------------------------------
 if ((!dir.exists(OUT_DIR)) | (!dir.exists(OUT_DIR_PATHWAY)) | (!dir.exists(OUT_DIR_DATA))) {
   dir.create(OUT_DIR, recursive = T)

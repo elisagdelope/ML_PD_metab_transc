@@ -20,10 +20,19 @@ process_data4ML <- function(EXPRS.FILE, PHENO.FILE, features_varname, OUT_DIR_DA
     pivot_wider(names_from = all_of(features_varname), values_from = EXPRS) %>%
     dplyr::select(-VISIT)
   
-  pheno_4ML <- pheno %>%
-    dplyr::select(all_of(c(target, 'PATIENT_ID'))) 
-  
-  expr_4ML <- expr_4ML %>%
+  if(!all(pheno[[target]] %in% c(0,1))) {
+    pheno_4ML <- pheno %>%
+      dplyr::select(all_of(c(target, 'PATIENT_ID'))) %>%
+      mutate(!!target := case_when(get(target) == "HC" ~ 0,
+                                   get(target) == "PD" ~ 1)) %>% 
+      mutate_at(target, factor)
+  } else {
+    pheno_4ML <- pheno %>%
+      dplyr::select(all_of(c(target, 'PATIENT_ID'))) %>% 
+      mutate_at(target, factor)
+  }
+
+    expr_4ML <- expr_4ML %>%
     inner_join(pheno_4ML, 
                by = "PATIENT_ID") %>%
     mutate_at(target, factor)
