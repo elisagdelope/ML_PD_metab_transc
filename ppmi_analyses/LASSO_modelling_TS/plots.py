@@ -7,14 +7,14 @@ import numpy as np
 def collect_cvperf_files(directory, cv_pattern):
     combined_df = pd.DataFrame()
 
-    for filename in os.listdir(directory): 
-        if filename.endswith(cv_pattern): 
+    for filename in os.listdir(directory):
+        if filename.endswith(cv_pattern):
             file_path = os.path.join(directory, filename)
             # reading content into data frame
             df = pd.read_csv(file_path, index_col=0)
             if not df.empty:
                 combined_df = combined_df.append(df.iloc[0], ignore_index=True)
-            
+
     combined_df.index = [filename.replace("_"+cv_pattern, "") for filename in os.listdir(directory) if filename.endswith(cv_pattern)]
     combined_df = combined_df.rename(index={cv_pattern: "GENE"})
 
@@ -104,23 +104,18 @@ def multi_heatmap_vertical(list_df, titles, savefig=True):
 
 
 list_df = []
-#prefix_pattern = ["", "lm-time_", "lm-lag_", "sd_"]
-prefix_pattern = ["", "lm-time_", "sd_"]
+prefix_pattern = ["", "lm-time_", "lm-lag_", "sd_"]
 for cv_pattern in prefix_pattern:
     if cv_pattern == "":
-        IN_DIR = "BL-UPDRS3/results" #"BL-PD/results"
+        IN_DIR = "BL-PD/results" #"BL-PD/results"
     else:
-        IN_DIR = "TS-UPDRS3/results" #"TS-PD/results"
-    cv_pattern = cv_pattern+"results_nestedCV_UPDRS3_binary.csv"
+        IN_DIR = "TS-PD/results" #"TS-PD/results"
+    cv_pattern = cv_pattern+"results_nestedCV_DIAGNOSIS.csv"
     df = collect_cvperf_files(IN_DIR, cv_pattern)
     df.columns = ["SVM Linear", "SVM Radial", "Random Forest", "Gradient Boosting", "Adaboost", "Logistic Regression"]
     df = df[["Random Forest", "Logistic Regression", "SVM Linear", "SVM Radial", "Gradient Boosting", "Adaboost"]]
     list_df.append(df)
 
 # Generate figure with 4 heatmaps
-#titles = ['Baseline (T0)', 'LM (expr/time)', 'LM (expr/lag1(expr))', 'SD (expr)']  # Replace with desired titles
-titles = ['Baseline (T0)', 'LM (expr/time)', 'SD (expr)'] 
+titles = ['Baseline (T0)', 'LM (expr/time)', 'LM (expr/lag1(expr))', 'SD (expr)']  # Replace with desired titles
 multi_heatmap_vertical(list_df, titles, savefig=True)
-
-
-
