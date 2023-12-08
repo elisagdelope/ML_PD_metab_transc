@@ -12,8 +12,11 @@ Test for different data distributions.
 
 ### Preprocessing
 
-##### ppmi_data4ML_class.R
-Perform unsupervised filters to generate data for ML modelling of snapshot data (T0) from metabolomics data (all PD/HC and *de novo* PD/HC).
+##### ppmi_generate_temp_features.R
+Generate longitudinal features (lm-time, lm-lag, sd) from longitudinal transcriptomcis data (T0, T1, T2, T3).
+
+##### ppmi_data4ML_class.R, ppmi_data4ML_TS_class.R
+Perform unsupervised filters to generate data for ML modelling of PD/HC from RNAseq snapshot data (T0), and longitudinal features extracted from longitudinal RNAseq data, respectively.
 
 * ppmi_data4ML_class.R employs as input transcriptomics and phenotypical data resulting from previous pre-processing scripts described in repository *statistical_analyses_cross_long_PD* for **parsing data** and **Baseline (T0) PD/HC** (ppmi_filter_gene_expression.R, ppmi_norm_gene_expression.R, ppmi_generate_pathway_level.R). 
 
