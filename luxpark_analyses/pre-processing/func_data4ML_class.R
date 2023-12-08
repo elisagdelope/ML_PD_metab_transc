@@ -2,12 +2,11 @@
 # Authorship: Elisa Gomez de Lope, Contact details: elisa.gomezdelope@uni.lu
 # Info: This script contains functions to pre-process data prior to ML modelling
 
-process_data4ML <- function(METAB.FILE, M1342.FILE, PHENO.FILE, features_varname, OUT_DIR_DATA, target, myseed, export){
+process_data4ML <- function(METAB.FILE, PHENO.FILE, features_varname, OUT_DIR_DATA, e_level, st, target, myseed, export){
   
   # Data load --------------------------------------------------------------------
   # log-transformed peak area & clinical data.
   annotation <- vroom(ANNOTATION.FILE, col_types = cols())
-  M1342 <- vroom(M1342.FILE, col_types = cols()) 
   pheno <- vroom(PHENO.FILE, col_types = cols())
   metab <- vroom(METAB.FILE, col_types = cols()) 
   metab = metab[!duplicated(metab[["SAMPLE_ID"]]), ]
@@ -15,10 +14,6 @@ process_data4ML <- function(METAB.FILE, M1342.FILE, PHENO.FILE, features_varname
   
   
   # Data reformatting for ML -----------------------------------------------------
-  
-  # kNN imputation for BMI variable
-  pheno <- VIM::kNN(pheno, variable = "BMI", k= 5, imp_var = F)
-  
   if(!all(pheno[[target]] %in% c(0,1))) {
     pheno_4ML <- pheno %>%
       dplyr::select(all_of(c(target, 'SAMPLE_ID'))) %>%
@@ -28,10 +23,8 @@ process_data4ML <- function(METAB.FILE, M1342.FILE, PHENO.FILE, features_varname
       mutate_at(target, factor)
   } else {
     pheno_4ML <- pheno %>%
-      dplyr::select(all_of(c(target, 'SAMPLE_ID')))
-    pheno <- pheno %>% 
-      mutate_at(target, factor) %>%
-      mutate(across(all_of(target), ~factor(.x, labels = make.names(sort(unique(pheno[[target]]))))))
+      dplyr::select(all_of(c(target, 'SAMPLE_ID'))) %>% 
+      mutate_at(target, factor) 
   }
   dim_metab <- dim(metab)
   
@@ -64,9 +57,7 @@ process_data4ML <- function(METAB.FILE, M1342.FILE, PHENO.FILE, features_varname
                by = "SAMPLE_ID") %>%
     mutate_at(target, factor) %>% 
     column_to_rownames("SAMPLE_ID")
-  
-  rm(pheno_4ML, metab)
-  
+
   
   # export pre-processed data 
   if (export == TRUE) {
@@ -94,4 +85,52 @@ process_data4ML <- function(METAB.FILE, M1342.FILE, PHENO.FILE, features_varname
       readr::write_tsv(hout_4ML %>% rownames_to_column(var = "SAMPLE_ID"), file = file.path(OUT_DIR_DATA, paste0(e_level, "_", st, "_data_test_metab_4ML_", target, ".tsv")))
     }
   }
+}
+
+
+process_data4ML_TS <- function(METAB.FILE, pheno_4ML, features_varname, OUT_DIR_DATA, e_level, st, target, temp_feature, myseed, export) {
+  
+  # Data load --------------------------------------------------------------------
+  # log-transformed peak area & clinical data.
+  annotation <- vroom(ANNOTATION.FILE, col_types = cols())
+  metab <- vroom(METAB.FILE, col_types = cols()) 
+  dim_metab <- dim(metab)
+  
+  metab_4ML <- metab %>%
+    inner_join(pheno_4ML, 
+               by = "PATIENT_ID") %>%
+    mutate_at(target, factor)
+
+  # apply unsupervised filters ---------------------------------------------------
+  # remove zero variance features 
+  nzv <- nearZeroVar(metab_4ML[, !(names(metab_4ML) %in% c(target))], freqCut = 10, names = TRUE) 
+  if (length(nzv) != 0 ) {
+    metab_4ML <- metab_4ML %>%
+      dplyr::select(-any_of(nzv))
+  }
+  nzv2 <- nearZeroVar(metab_4ML[, !(names(metab_4ML) %in% c(target))], saveMetrics = TRUE)
+  metab_4ML <- metab_4ML %>%
+    dplyr::select(-any_of(rownames(nzv2[nzv2$freqRatio > 50,])))
+  print(paste("nzv filter:", length(nzv) + length(rownames(nzv2[nzv2$freqRatio > 50,]))))
+  
+  # remove highly correlated features 
+  cor_df = cor(metab_4ML[,-c(1,ncol(metab_4ML))]) # remove patient ID and diagnosis variables
+  hc = findCorrelation(cor_df, cutoff=0.85, names = TRUE) 
+  hc = sort(hc)
+  if (length(hc) > 0) {
+    metab_4ML = metab_4ML[,-which(names(metab_4ML) %in% c(hc))]
+  }
+  print(paste("hc filter:", length(hc)))
+  print("NZV and correlation filters successfully applied")
+  print(paste((length(hc) + length(nzv) + length(rownames(nzv2[nzv2$freqRatio > 50,]))), "features were removed out of", dim_metab[2]))
+  
+  metab_4ML <- metab_4ML %>%
+    column_to_rownames("PATIENT_ID")
+  
+  if (e_level == "GENE") {
+    readr::write_tsv(expr_4ML %>% rownames_to_column(var = "SAMPLE_ID"), file = file.path(OUT_DIR_DATA, paste0("data_", temp_feature, "_metab_4ML_", target, ".tsv")))
+  } else {
+    readr::write_tsv(expr_4ML %>% rownames_to_column(var = "SAMPLE_ID"), file = file.path(OUT_DIR_DATA, paste0(e_level, "_", st, "_", temp_feature, "_data_metab_4ML_", target, ".tsv")))
+  }
+  
 }
