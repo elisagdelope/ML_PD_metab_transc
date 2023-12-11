@@ -18,7 +18,7 @@ Generate exploratory plots on the distribution of the data
 ##### lx_data4ML_class.R, lx_data4ML_class_denovo.R
 Performs unsupervised filters to generate data for ML modelling of snapshot data (T0) from metabolomics data (all PD/HC and *de novo* PD/HC).
 
-* lx_data4ML_class.R and lx_data4ML_class_denovo.R use as input metabolomics and phenotypical data resulting from previous pre-processing scripts described in repository *statistical_analyses_cross_long_PD* for **parsing data** and **Baseline (T0) PD/HC** (lx_extract_visit.R, lx_denovo_filter.R, lx_generate_pathway_level.R). 
+* lx_data4ML_class.R and lx_data4ML_class_denovo.R use as input metabolomics and phenotypical data resulting from previous pre-processing scripts described in repository [statistical_analyses_cross_long_PD](https://gitlab.lcsb.uni.lu/elisa.gomezdelope/statistical_analyses_cross_long_pd) for **parsing data** and **Baseline (T0) PD/HC** (lx_extract_visit.R, lx_denovo_filter.R, lx_generate_pathway_level.R). 
 
 
 ### ML modelling with DA feature selection
